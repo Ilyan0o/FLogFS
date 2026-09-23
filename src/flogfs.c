@@ -1493,7 +1493,7 @@ flog_block_alloc_t flog_allocate_block_iterate(){
 
 	block.block = FLOG_BLOCK_IDX_INVALID;
 	
-	if(flogfs.free_block_bitmap[flogfs.allocate_head] &
+	if(flogfs.free_block_bitmap[flogfs.allocate_head / 8] &
 	   (1 << (flogfs.allocate_head % 8))){
 		// This block is okay to look at
 		flog_get_block_stat(flogfs.allocate_head, &block_stat_sector);
@@ -1907,8 +1907,7 @@ flog_block_alloc_t flog_allocate_block(int32_t threshold){
 		if(block.block != FLOG_BLOCK_IDX_INVALID){
 			// Found a block
 			if(flog_age_is_sufficient(threshold, block.age)){
-				flogfs.free_block_bitmap[block.age / 8] &=
-				   ~(1 << (block.age % 8));
+				flogfs.free_block_bitmap[block.block / 8] &= ~(1 << (block.block % 8));
 				// BOOOOOO
 				flogfs.num_free_blocks -= 1;
 				flogfs.free_block_sum -= block.age;
