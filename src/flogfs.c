@@ -627,7 +627,8 @@ update_last_allocation:
 		last_allocation.age = universal_tail_sector.next_age;
 	}
 	
-	flogfs.mean_free_age = flogfs.free_block_sum / flogfs.num_free_blocks;
+	// flogfs.mean_free_age = flogfs.free_block_sum / flogfs.num_free_blocks;
+	flogfs.mean_free_age = (flogfs.num_free_blocks > 0) ? flogfs.free_block_sum / flogfs.num_free_blocks : 0;
 	
 	if(inode0_idx == FLOG_BLOCK_IDX_INVALID){
 		flash_debug_error("FLogFS:" LINESTR);
@@ -727,8 +728,8 @@ update_last_allocation:
 				// BOOOOOO
 				flogfs.num_free_blocks -= 1;
 				flogfs.free_block_sum -= last_allocation.age;
-				flogfs.mean_free_age = 
-				   flogfs.free_block_sum / flogfs.num_free_blocks;
+				// flogfs.mean_free_age = flogfs.free_block_sum / flogfs.num_free_blocks;
+				flogfs.mean_free_age = (flogfs.num_free_blocks > 0) ? flogfs.free_block_sum / flogfs.num_free_blocks : 0;
 
 				flogfs.t = last_allocation.timestamp + 1;
 			}
@@ -755,8 +756,8 @@ update_last_allocation:
 			// BOOOOOO
 			flogfs.num_free_blocks -= 1;
 			flogfs.free_block_sum -= last_allocation.age;
-			flogfs.mean_free_age = 
-			   flogfs.free_block_sum / flogfs.num_free_blocks;
+			// flogfs.mean_free_age = flogfs.free_block_sum / flogfs.num_free_blocks;
+			flogfs.mean_free_age = (flogfs.num_free_blocks > 0) ? flogfs.free_block_sum / flogfs.num_free_blocks : 0;
 			break;
 		default:
 			// Huh?
@@ -1391,7 +1392,7 @@ flog_result_t flog_commit_file_sector(flog_write_file_t * file,
 		flogfs.dirty_block.block = next_block.block;
 		flogfs.dirty_block.file = file;
 
-		flogfs.num_free_blocks -= 1;
+		//flogfs.num_free_blocks -= 1;
 
 		flog_unlock_allocate();
 
@@ -1861,7 +1862,8 @@ void flog_invalidate_chain (flog_block_idx_t base, flog_file_id_t file_id) {
 	}
 done:
 	flogfs.num_free_blocks += num_freed;
-	flogfs.mean_free_age = flogfs.free_block_sum / flogfs.num_free_blocks;
+	//flogfs.mean_free_age = flogfs.free_block_sum / flogfs.num_free_blocks;
+	flogfs.mean_free_age = (flogfs.num_free_blocks > 0) ? flogfs.free_block_sum / flogfs.num_free_blocks : 0;
 	flogfs.t_allocation_ceiling = FLOG_TIMESTAMP_INVALID;
 	flog_unlock_delete();
 }
@@ -1898,8 +1900,8 @@ flog_block_alloc_t flog_allocate_block(int32_t threshold){
 			//flog_unlock_allocate();
 			flogfs.num_free_blocks -= 1;
 			flogfs.free_block_sum -= block.age;
-			flogfs.mean_free_age = 
-			   flogfs.free_block_sum / flogfs.num_free_blocks;
+			// flogfs.mean_free_age = flogfs.free_block_sum / flogfs.num_free_blocks;
+			flogfs.mean_free_age = (flogfs.num_free_blocks > 0) ? flogfs.free_block_sum / flogfs.num_free_blocks : 0;
 			return block;
 		}
 		
@@ -1911,9 +1913,10 @@ flog_block_alloc_t flog_allocate_block(int32_t threshold){
 				// BOOOOOO
 				flogfs.num_free_blocks -= 1;
 				flogfs.free_block_sum -= block.age;
-				flogfs.mean_free_age = 
-				   flogfs.free_block_sum / flogfs.num_free_blocks;
+				// flogfs.mean_free_age = flogfs.free_block_sum / flogfs.num_free_blocks;
 				// It's actually okay!
+				flogfs.mean_free_age = (flogfs.num_free_blocks > 0) ? flogfs.free_block_sum / flogfs.num_free_blocks : 0;
+
 				break;
 			} else {
 				// Leave it for someone else
